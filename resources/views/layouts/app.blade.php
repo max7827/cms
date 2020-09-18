@@ -84,10 +84,10 @@
 
                     <div class="card">
 
-                        <div class="card-header">
-                            sidebar
+                        <div class="card-header bg-dark text-light  ">
+                            <strong>Sidebar</strong>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body bg-dark text-light">
 
                             <ul class="list-group">
                                 <li class="list-group-item">
@@ -96,19 +96,9 @@
                                 </li>
 
 
-
                                 <li class="list-group-item">
 
-                                    <a href="{{route('tag.create')}}">Add tags</a>
-
-                                </li>
-
-
-
-                                <li class="list-group-item">
-
-
-                                    <a href="{{route('post.create')}}">Add Post</a>
+                                    <a href="{{route('category.index')}}">show all category</a>
 
                                 </li>
 
@@ -122,25 +112,14 @@
                                 </li>
 
 
-                                <li class="list-group-item">
 
-                                    <a href="{{route('post-trashed')}}">Show Trashed post</a>
-
-                                </li>
+                                <hr>
 
 
                                 <li class="list-group-item">
 
 
-                                    <a href="{{route('tag-trashed')}}">Show Trashed tag</a>
-
-                                </li>
-
-
-
-                                <li class="list-group-item">
-
-                                    <a href="{{route('category.index')}}">show all category</a>
+                                    <a href="{{route('post.create')}}">Add Post</a>
 
                                 </li>
 
@@ -152,11 +131,36 @@
                                 </li>
 
 
+
+                                <li class="list-group-item">
+
+                                    <a href="{{route('post-trashed')}}">Show Trashed post</a>
+
+                                </li>
+                                <hr>
+                                <li class="list-group-item">
+
+                                    <a href="{{route('tag.create')}}">Add tags</a>
+
+                                </li>
+
+
+
+
+
                                 <li class="list-group-item">
 
                                     <a href="{{route('tag.index')}}">show all tags</a>
 
                                 </li>
+
+                                <li class="list-group-item">
+
+
+                                    <a href="{{route('tag-trashed')}}">Show Trashed tag</a>
+
+                                </li>
+
                             </ul>
                         </div>
 

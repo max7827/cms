@@ -17,7 +17,9 @@
             @endif
 
             <div class="form-group">
-
+                @if(session()->has('msg'))
+                <div class="alert alert-success">{{session()->get('msg')}}</div>
+                @endif
                 <label for="title">Enter Category name</label>
                 <input class="form-control" type="text" value=" {{isset($category) ? $category->name : ''}}" name="name"></input>
                 @if($errors->any())

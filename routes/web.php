@@ -22,6 +22,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::resource('category', 'CategoryController');
+    Route::get('categoryrestore/{id}', 'CategoryController@restore');
     Route::get('category-trashed', 'CategoryController@trashed')->name('category-trashed');
     Route::resource('tag', 'TagController');
     Route::get('tag-trashed', 'TagController@trashed')->name('tag-trashed');

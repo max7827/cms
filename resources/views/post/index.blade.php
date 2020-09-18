@@ -32,9 +32,11 @@
                 <th>
                     Sr.
                 </th>
+                <th>Title</th>
                 <th>
                     image
                 </th>
+                <th>Category</th>
                 <th>
                     @foreach($posts as $post)
                     @endforeach
@@ -54,7 +56,9 @@
             <tr>
                 <td>{{$loop->iteration}} </td>
 
-                <td><img src="{{$post->image}}" width="80" class="img-thumbnail" alt=""></td>
+                <td><img src="storage/{{$post->image}}" width="40" class="img-thumbnail"></td>
+                <td>{{$post->title}}</td>
+                <td><a href="{{route('category.edit',$post->category->id)}}">{{$post->category->name}}</a></td>
                 <td>
                     @if(!$post->trashed())
                     <a href="{{route('post.edit',$post->id)}}" class="btn btn-info btn-sm text-light">Edit</a>

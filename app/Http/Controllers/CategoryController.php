@@ -17,7 +17,7 @@ class CategoryController extends Controller
     public function index()
     {
 
-        return view('category.index')->with('category', Category::orderBy('name')->get());
+        return view('category.index')->with('category', Category::orderBy('name')->paginate(5));
     }
 
     /**
@@ -126,8 +126,16 @@ class CategoryController extends Controller
     public function trashed()
     {
 
-        $trashed = Category::onlyTrashed()->orderBy('name', 'desc')->get();
+        $trashed = Category::onlyTrashed()->orderBy('name', 'desc')->paginate(5);
         // dd($trashed);
         return view('category.index')->with('category', $trashed);
+    }
+
+    public function restore($id)
+    {
+
+        Category::withTrashed()->find($id)->restore();
+        Session::flash('msg', 'category successfully restored');
+        return redirect()->back();
     }
 }
