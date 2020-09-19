@@ -24,7 +24,7 @@ class TagController extends Controller
 
     public function index()
     {
-        return view('tag.index')->with('tag', Tag::all());
+        return view('tag.index')->with('tag', Tag::paginate(5));
     }
 
     /**
@@ -104,9 +104,16 @@ class TagController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Tag $tag)
     {
-        $tag = Tag::withTrashed()->find($id);
+
+
+        if ($tag->post->count() > 0) {
+            Session::flash('error', 'Tag cannot be deleted because it is associated with post');
+
+            return redirect()->back();
+        }
+        $tag->withTrashed()->find($tag->id);
 
         if ($tag->trashed()) {
             $tag->forceDelete();
@@ -122,8 +129,17 @@ class TagController extends Controller
     public function trashed()
     {
 
-        $tags = Tag::onlyTrashed()->orderBy('name')->get();
+        $tags = Tag::onlyTrashed()->orderBy('name')->paginate(5);
 
         return view('tag.index')->with('tag', $tags);
+    }
+
+
+    public function restore($id)
+    {
+
+        Tag::withTrashed()->find($id)->restore();
+        Session::flash('msg', 'Tag successfully restored');
+        return redirect()->back();
     }
 }

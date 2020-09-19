@@ -135,7 +135,7 @@
                 </form>
 
                 <form action="" method="get" id="restoreform">
-                    @csrf
+
 
 
 

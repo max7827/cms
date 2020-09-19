@@ -17,6 +17,7 @@
 <div class="alert alert-danger">{{session()->get('error')}}</div>
 @endif
 
+
 <div class="card">
 
     <div class="card-header">{{isset($tag) ? 'Tags' : 'Trashed Tags'}}</div>
@@ -26,42 +27,75 @@
 
 
 
-        <table class="table">
-            <tr>
+        <table class="table table-bordered ">
+            <thead class="bg-dark text-light">
 
-                <th>
-                    Sr.
-                </th>
-                <th>
-                    tag
-                </th>
-                <th>
-                    @foreach($tag as $tags)
+
+                <tr>
+
+                    <th>
+                        Sr.
+                    </th>
+                    <th>
+                        tag
+                    </th>
+                    <th>
+                        Post Count
+                    </th>
+                    @foreach($tag as $res)
                     @endforeach
 
-                    @if(!$tags->trashed())
+                    @if(!$res->trashed())
+                    <th>
 
-                    edit
+                        edit
+                    </th>
                     @endif
 
-                </th>
-                <th>
-                    delete
-                </th>
 
-            </tr>
-            @foreach($tag as $tags)
+
+
+                    @foreach($tag as $res)
+                    @endforeach
+
+                    @if($res->trashed())
+                    <th>
+                        restore
+                    </th>
+                    @endif
+
+
+
+                    <th>
+                        delete
+                    </th>
+
+                </tr>
+            </thead>
+            @php
+            $i = $tag->perPage() * ($tag->currentPage() - 1);
+            @endphp
+            @foreach($tag as $res)
             <tr>
-                <td>{{$loop->iteration}} </td>
-                <td>{{$tags->name}}</td>
-                <td>
-                    @if(!$tags->trashed())
-                    <a href="{{route('tag.edit',$tags->id)}}" class="btn btn-info btn-sm text-light">Edit</a>
-                    @endif
+                <td>{{++$i}} </td>
+                <td>{{$res->name}}</td>
+                <td>{{$res->post->count()}}</td>
+
+
+
+                @if(!$res->trashed())
+                <td> <a href="{{route('tag.edit',$res->id)}}" class="btn btn-info btn-sm text-light">Edit</a>
                 </td>
+                @endif
+
+                @if($res->trashed())
+                <td>
+                    <button onclick="handleRestore({{$res->id}})" class="btn btn-sm btn-success  ">Restore</button>
+                </td>
+                @endif
 
 
-                <td><button onclick="handleDelete({{$tags->id}})" class="btn btn-sm btn-danger  ">{{$tags->trashed() ?'delete' : 'Trash'}}</button></td>
+                <td><button onclick="handleDelete({{$res->id}})" class="btn btn-sm btn-danger  ">{{$res->trashed() ?'delete' : 'Trash'}}</button></td>
 
 
                 <form action="" method="POST" id="deleteform">
@@ -79,7 +113,7 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    @if(!$tags->trashed())
+                                    @if(!$res->trashed())
                                     Are you sure you want to trash it
                                     @else
                                     Are you sure you want to peranently delete it
@@ -94,14 +128,43 @@
                     </div>
                 </form>
 
+                <form action="" method="get" id="restoreform">
+
+
+
+
+                    <div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Restore tag</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+                                    Are you sure you want to restore it
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">go back</button>
+                                    <button type="submit" class="btn btn-success">restore</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </tr>
             @endforeach
         </table>
 
+        {{$tag->links()}}
+
     </div>
     @else
     <div class="card-body">
-        <h3>No tags found</h3>
+        <h3> No tag found</h3>
 
     </div>
     @endif
@@ -120,6 +183,15 @@
         form.action = '/tag/' + id
         console.log(form)
         $('#deleteModal').modal('show')
+    }
+</script>
+<script>
+    function handleRestore(id) {
+
+        var form = document.getElementById('restoreform')
+        form.action = '/tagrestore/' + id
+        console.log(form)
+        $('#restoreModal').modal('show')
     }
 </script>
 

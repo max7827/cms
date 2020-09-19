@@ -24,10 +24,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('category', 'CategoryController');
     Route::get('categoryrestore/{id}', 'CategoryController@restore');
     Route::get('category-trashed', 'CategoryController@trashed')->name('category-trashed');
+
     Route::resource('tag', 'TagController');
+    Route::get('tagrestore/{id}', 'TagController@restore');
     Route::get('tag-trashed', 'TagController@trashed')->name('tag-trashed');
+
     Route::resource('post', 'PostController');
+    Route::get('postrestore/{id}', 'PostController@restore');
     Route::get('post-trashed', 'PostController@trashed')->name('post-trashed');
+
+
     Route::get('/home', 'HomeController@index')->name('home')->middleware('verified');
 });
 

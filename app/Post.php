@@ -15,4 +15,12 @@ class post extends Model
     {
         return $this->belongsTo(Category::class);
     }
+    public function tag()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+    public function hasTag($tagId)
+    {
+        return in_array($tagId, $this->tag->pluck('id')->toArray());
+    }
 }

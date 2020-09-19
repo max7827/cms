@@ -19,54 +19,84 @@
 
 <div class="card">
 
-    <div class="card-header">{{isset($posts) ? 'Posts' : 'Trashed Posts'}}</div>
+    <div class="card-header">{{isset($post) ? 'Posts' : 'Trashed Posts'}}</div>
 
-    @if($posts->count()>0)
+    @if($post->count()>0)
     <div class="card-body pl-2">
 
 
 
-        <table class="table">
-            <tr>
 
-                <th>
-                    Sr.
-                </th>
-                <th>Title</th>
-                <th>
-                    image
-                </th>
-                <th>Category</th>
-                <th>
-                    @foreach($posts as $post)
+        <table class="table table-bordered ">
+            <thead class="bg-dark text-light">
+                <tr>
+
+                    <th>
+                        Sr.
+                    </th>
+                    <th>
+                        image
+                    </th>
+                    <th>Title</th>
+                    <th>Tag Count</th>
+                    <th>Category</th>
+                    @foreach($post as $res)
                     @endforeach
 
-                    @if(!$post->trashed())
+                    @if(!$res->trashed())
+                    <th>
 
-                    edit
+                        edit
+                    </th>
                     @endif
 
-                </th>
-                <th>
-                    delete
-                </th>
 
-            </tr>
-            @foreach($posts as $post)
+                    @foreach($post as $res)
+                    @endforeach
+
+                    @if($res->trashed())
+                    <th>
+
+                        restore
+                    </th>
+                    @endif
+                    <th>
+                        delete
+                    </th>
+                </tr>
+            </thead>
+
+            @php
+            $i = $post->perPage() * ($post->currentPage() - 1);
+            @endphp
+
+
+            @foreach($post as $res)
             <tr>
-                <td>{{$loop->iteration}} </td>
+                <td>{{++$i}} </td>
 
-                <td><img src="storage/{{$post->image}}" width="40" class="img-thumbnail"></td>
-                <td>{{$post->title}}</td>
-                <td><a href="{{route('category.edit',$post->category->id)}}">{{$post->category->name}}</a></td>
+                <td><img src="{{asset('/storage/'.$res->image)}}" width="40" class="img-thumbnail"></td>
+                <td>{{$res->title}}</td>
+                <td>{{$res->tag->count()}}</td>
+
+                <td><a href="{{route('category.edit',$res->category->id)}}">{{$res->category->name}}</a></td>
+
+
+                @if(!$res->trashed())
                 <td>
-                    @if(!$post->trashed())
-                    <a href="{{route('post.edit',$post->id)}}" class="btn btn-info btn-sm text-light">Edit</a>
-                    @endif
+                    <a href="{{route('post.edit',$res->id)}}" class="btn btn-info btn-sm text-light">Edit</a>
                 </td>
+                @endif
+                @if($res->trashed())
+
+                <td>
+                    <button onclick="handleRestore({{$res->id}})" class="btn btn-sm btn-success  ">restore</button>
+
+                </td>
+                @endif
 
 
-                <td><button onclick="handleDelete({{$post->id}})" class="btn btn-sm btn-danger  ">{{$post->trashed() ?'delete' : 'Trash'}}</button></td>
+                <td><button onclick="handleDelete({{$res->id}})" class="btn btn-sm btn-danger  ">{{$res->trashed() ?'delete' : 'Trash'}}</button></td>
 
 
                 <form action="" method="POST" id="deleteform">
@@ -84,7 +114,7 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    @if(!$post->trashed())
+                                    @if(!$res->trashed())
                                     Are you sure you want to trash it
                                     @else
                                     Are you sure you want to peranently delete it
@@ -99,10 +129,37 @@
                     </div>
                 </form>
 
+                <form action="" method="get" id="restoreform">
+
+
+
+
+                    <div class="modal fade" id="restoreModal" tabindex="-1" aria-labelledby="deleteModal" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Restore Posts</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+
+                                    Are you sure you want to restore it
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">go back</button>
+                                    <button type="submit" class="btn btn-success">restore</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </tr>
             @endforeach
         </table>
-
+        {{$post->links()}}
     </div>
     @else
     <div class="card-body">
@@ -125,6 +182,16 @@
         form.action = '/post/' + id
         console.log(form)
         $('#deleteModal').modal('show')
+    }
+</script>
+
+<script>
+    function handleRestore(id) {
+
+        var form = document.getElementById('restoreform')
+        form.action = '/postrestore/' + id
+        console.log(form)
+        $('#restoreModal').modal('show')
     }
 </script>
 

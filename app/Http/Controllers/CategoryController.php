@@ -108,10 +108,17 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        $category = Category::withTrashed()->find($id);
-        // dd($category);
+
+        if ($category->post->count() > 0) {
+            Session::flash('error', 'Category cannot be deleted because it is associated with post');
+
+            return redirect()->back();
+        }
+
+        $category->withTrashed()->find($category->id);
+
         if ($category->trashed()) {
             $category->forceDelete();
             Session::flash('msg', 'category successfully deleted');

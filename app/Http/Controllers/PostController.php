@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Post;
 use App\Category;
+use App\Tag;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
@@ -25,7 +26,7 @@ class PostController extends Controller
 
     public function index()
     {
-        return view('post.index')->with('posts', Post::all());
+        return view('post.index')->with('post', Post::paginate(5));
     }
 
     /**
@@ -36,7 +37,7 @@ class PostController extends Controller
     public function create()
     {
         //dd('ass');
-        return view('post.create')->with('category', Category::all());
+        return view('post.create')->with('category', Category::all())->with('tag', Tag::all());
     }
 
     /**
@@ -55,13 +56,18 @@ class PostController extends Controller
         ]);
 
         $image = $request->image->store('post');
-        Post::create([
+        $post = Post::create([
             'title' => $request->title,
             'content' => $request->content,
             'category_id' => $request->category_id,
             'published_at' => $request->published_at,
-            'image' => $image
+            'image' => $image,
+            'tag_id' => $request->tag
         ]);
+
+        if ($request->tag) {
+            $post->tag()->attach($request->tag);
+        }
 
         Session::flash('msg', 'post successfully added');
         return redirect()->route('post.index');
@@ -86,7 +92,7 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        return view('post.create')->with('posts', $post)->with('category', Category::all());
+        return view('post.create')->with('post', $post)->with('category', Category::all())->with('tag', Tag::all());
     }
 
     /**
@@ -98,12 +104,26 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+
         $request->validate([
-            'title' => 'required|unique:posts|max:255',
+            'title' => 'required|max:255',
             'content' => 'required',
             'image' => 'required|image'
 
         ]);
+
+
+        $a = Post::where('id', '!=', $post->id)->get('title');
+        foreach ($a as $b) {
+            $c[] = $b->title;
+        }
+
+        if (in_array($request->title, $c) == true) {
+            Session::flash('error', 'title already exists');
+            return redirect()->back()->withInput();
+        }
+        //dd('aaa00');
+
         Storage::delete($post->image);
         $image = $request->image->store('post');
         Post::find($post->id)->update([
@@ -113,6 +133,10 @@ class PostController extends Controller
             'published_at' => $request->published_at,
             'image' => $image
         ]);
+
+        if ($request->tag) {
+            $post->tag()->sync($request->tag);
+        }
 
         Session::flash('msg', 'post successfully updated');
         return redirect()->route('post.index');
@@ -124,9 +148,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        $post = post::withTrashed()->find($id);
+        $post->withTrashed()->find($post->id);
         if ($post->trashed()) {
             $post->forceDelete();
             Storage::delete($post->image);
@@ -142,8 +166,16 @@ class PostController extends Controller
     public function trashed()
     {
 
-        $posts = Post::onlyTrashed()->orderBy('title')->get();
+        $posts = Post::onlyTrashed()->orderBy('title')->paginate(5);
 
-        return view('post.index')->with('posts', $posts);
+        return view('post.index')->with('post', $posts);
+    }
+
+    public function restore($id)
+    {
+
+        Post::withTrashed()->find($id)->restore();
+        Session::flash('msg', 'post successfully restored');
+        return redirect()->back();
     }
 }
